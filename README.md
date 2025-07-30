@@ -96,8 +96,9 @@ Agentic-AI-System/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Agentic-AI-System.git
-cd Agentic-AI-System
+git clone https://github.com/Hanan899/agentic-ai-system.git
+
+cd agentic-ai-system
 ```
 ### 2. Create a virtual environment & install dependencie
 
