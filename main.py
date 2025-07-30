@@ -23,7 +23,7 @@ tools = [
          description="Useful for administrative issues such as logistics, access requests, office supplies, or general support."),
 ]
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyBhTaT29mORqPhmnPyGEYdpVRTswmzSxgU"
+os.environ["GOOGLE_API_KEY"] = "Your_API_Here"
 
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
