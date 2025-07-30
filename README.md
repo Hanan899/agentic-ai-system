@@ -1,68 +1,68 @@
+# Agentic AI System
 
-markdown
-Copy
-Edit
-# 🤖 Agentic AI System
-
-An intelligent agent-based ticket classification and routing system built with **LangChain**, **Google Gemini**, and **Streamlit**, powered by a modular architecture. This app detects user intent (e.g., ticket request vs. general info), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local **SQLite** database.
+An intelligent agent-based system built with **LangChain**, **Agents**, **Google Gemini**, and **Streamlit**, powered by a modular architecture. This system detects user intent (e.g., ticket request vs. general info), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local **SQLite** database. It also handles general informational queries without logging tickets.
 
 ---
 
-## 🧠 Features
+## Features
 
-- ✅ Intent classification: "ticket" or "info"
-- 🧭 Dynamic sub-agent routing (HR, IT, Finance, etc.)
-- 🗃️ SQLite-based persistent ticket storage
-- 🌐 Powered by Google Gemini LLM (via LangChain)
-- 📊 Admin dashboard to view and filter all tickets
-- 🖼️ Streamlit UI for interaction and testing
 
----
-
-## 🏗️ Architecture
-
-- 📝 User prompt → Intent classification
-- 🔁 "ticket" → Routed to correct department agent
-- 📦 Ticket stored in SQLite with metadata
-- 🔍 "info" → Answered using LLM without logging
-- 🔧 Modular agents (HR, IT, Finance, etc.) handle routing logic
-- 📋 Streamlit dashboard for monitoring + testing DB
+- **Intent Classification**: Automatically determines whether the user is requesting information or raising a support ticket.
+- **Domain-Specific Agents**:
+  - **ITAgent**: Software/hardware technical issues.
+  - **FinanceAgent**: Salary, reimbursement, or payment-related queries.
+  - **HRAgent**: HR issues like leave, complaints, and policies.
+  - **InfraAgent**: Wi-Fi, power, or device-related infrastructure problems.
+  - **AdminAgent**: General admin or logistics requests.
+- **SQLite Ticket Logging**: Only ticket-type prompts are stored in the local database.
+- **Streamlit Frontend**: Simple UI for chat interaction and database checking.
+- **Google Gemini LLM**: Handles understanding and routing of queries using `gemini-2.0-flash`.
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
 
+| Component     | Technology               |
+|---------------|---------------------------|
+| LLM           | Google Gemini (`gemini-2.0-flash`) |
+| Framework     | LangChain Agents          |
+| Backend       | Python (FastAPI-style logic) |
+| Frontend      | Streamlit                 |
+| Database      | SQLite (via `sqlite3`)    |
+
+---
+
+
+## Project Structure
+
+```text
 Agentic-AI-System/
 │
 ├── agents/ # Sub-agents by domain
-│ ├── admin_agent.py
-│ ├── finance_agent.py
-│ ├── hr_agent.py
-│ ├── infra_agent.py
-│ └── it_agent.py
+│   ├── admin_agent.py
+│   ├── finance_agent.py
+│   ├── hr_agent.py
+│   ├── infra_agent.py
+│   └── it_agent.py
 │
 ├── db/
-│ └── system.db # SQLite database
+│   └── system.db # SQLite database
 │
 ├── frontend/ # Streamlit-based interface
-│ ├── app.py # Main UI with intent classification
-│ └── check_db.py # View saved ticket records
+│   ├── app.py # Main UI with intent classification
+│   └── check_db.py # View saved ticket records
 │
 ├── utils/
-│ └── db_utils.py # DB connection, ticket saving/query logic
+│   └── db_utils.py # DB connection, ticket saving/query logic
 │
 ├── main.py # Entry point for LLM + routing logic
-├── requirements.txt
-├── .gitignore
-└── README.md # You're reading it!
+└── requirements.txt
 
-yaml
-Copy
-Edit
+```
 
 ---
 
-## 🚀 How It Works
+## Architecture
 
 1. **User** enters a query (e.g., "My laptop is not working")
 2. **LLM** classifies the intent as either:
@@ -79,7 +79,7 @@ Edit
 
 ---
 
-## 🧪 Example Queries
+## Example Queries
 
 | Query                                 | Intent   | Routed To     | Ticket |
 |--------------------------------------|----------|----------------|--------|
@@ -91,97 +91,82 @@ Edit
 
 ---
 
-## 💻 Getting Started
+## Getting Started
 
 ### 1. Clone the repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/Agentic-AI-System.git
 cd Agentic-AI-System
-2. Create a virtual environment
-bash
-Copy
-Edit
+```
+### 2. Create a virtual environment & install dependencie
+
+```bash
 python -m venv .venv
-# Activate it:
-# Windows
-.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
-3. Install dependencies
-bash
-Copy
-Edit
+source .venv/bin/activate     # For Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-4. Set your Gemini API key (via .env or direct)
-bash
-Copy
-Edit
-export GOOGLE_API_KEY=your_gemini_api_key
-5. Run the main interface
-bash
-Copy
-Edit
+```
+
+### 3. Set your Gemini API key (via .env or direct)
+
+```bash
+export GOOGLE_API_KEY=your_api_key_here
+```
+
+### 4. Run the main interface
+
+```bash
 streamlit run frontend/app.py
-Or view stored tickets:
+```
 
-bash
-Copy
-Edit
+### Or view stored tickets:
+
+```bash
 streamlit run frontend/check_db.py
-📦 Key Dependencies
-langchain
+```
 
-google-generativeai (Gemini)
+### Key Dependencies
 
-streamlit
+ - **langchain**
 
-sqlite3
+- **google-generativeai (Gemini)**
 
-python-dotenv (optional)
+- **streamlit**
 
-🛠️ Future Enhancements
- Add more detailed sub-intents (e.g., HR → Leave, Complaint, Onboarding)
+- **sqlite3**
 
- Integrate email or Slack notifications for tickets
+- **python-dotenv (optional)**
 
- Add authentication layer
+### Future Enhancements
 
- Dashboard with filters and charts
+ - Add more detailed sub-intents (e.g., HR → Leave, Complaint, Onboarding)
 
- Support for voice input using speech_recognition
+ - Integrate email or Slack notifications for tickets
 
-📄 License
-This project is released under the MIT License.
+ - Add authentication layer
 
-👨‍💻 Author
-Abdul Hanan
-AI Intern @ Hazen Technologies
-📧 a.hananwork4@gmail.com
-🔗 LinkedIn
+ - Dashboard with filters and charts
 
-🤝 Contributions
+ - Support for voice input using speech_recognition
+
+---
+
+### Author
+Abdul Hanan  
+AI Intern @ Hazen Technologies  
+LinkedIn: [LinkedIn](https://www.linkedin.com/in/abdul-hanan-2003-)  
+Gmail: a.hananwork4@gmail.com
+
+---
+
+### Contributions
 Pull requests and forks are welcome!
 If you’d like to extend this with:
 
-🧠 More advanced agents
+- More advanced agents
 
-📊 Analytics dashboard
+- Analytics dashboard
 
-🐳 Docker deployment
+- Docker deployment
+  
 Just fork it and submit a PR.
-
-javascript
-Copy
-Edit
-
-Would you like me to generate this `README.md` file and `.gitignore`, `requirements.txt` and zip them for you?
-
-
-
-
-
-
-
-
-Ask ChatGPT
