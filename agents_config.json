@@ -1,0 +1,32 @@
+[
+    {
+        "name": "InfraAgent",
+        "description": "Useful for handling infrastructure issues such as WiFi problems, power outages, or hardware malfunctions.",
+        "file": "infra_agent",
+        "function": "handle_infra_issue"
+    },
+    {
+        "name": "HRAgent",
+        "description": "Useful for HR-related concerns like leave applications, salary queries, complaints, and resignations.",
+        "file": "hr_agent",
+        "function": "handle_hr_issue"
+    },
+    {
+        "name": "ITAgent",
+        "description": "Useful for technical support related to software, hardware, and login issues.",
+        "file": "it_agent",
+        "function": "handle_it_issue"
+    },
+    {
+        "name": "FinanceAgent",
+        "description": "Useful for financial queries including reimbursements, salary problems, or payment delays.",
+        "file": "finance_agent",
+        "function": "handle_finance_issue"
+    },
+    {
+        "name": "AdminAgent",
+        "description": "Useful for administrative issues such as logistics, access requests, office supplies, or general support.",
+        "file": "admin_agent",
+        "function": "handle_admin_issue"
+    }
+]
