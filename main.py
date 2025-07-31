@@ -1,36 +1,34 @@
-from langchain.agents import Tool, initialize_agent
-from agents.infra_agent import handle_infra_issue
-from agents.hr_agent import handle_hr_issue
-from agents.it_agent import handle_it_issue
-from agents.finance_agent import handle_finance_issue
-from agents.admin_agent import handle_admin_issue
-from langchain_google_genai import ChatGoogleGenerativeAI
-from utils.db_utils import init_db
 import os
+import json
+import importlib.util
+from langchain.agents import Tool, initialize_agent
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents.agent_types import AgentType
+from utils.db_utils import init_db
 
 init_db()
 
-tools = [
-    Tool(name="InfraAgent", func=handle_infra_issue,
-         description="Useful for handling infrastructure issues such as WiFi problems, power outages, or hardware malfunctions."),
-    Tool(name="HRAgent", func=handle_hr_issue,
-         description="Useful for HR-related concerns like leave applications, salary queries, complaints, and resignations."),
-    Tool(name="ITAgent", func=handle_it_issue,
-         description="Useful for technical support related to software, hardware, and login issues."),
-    Tool(name="FinanceAgent", func=handle_finance_issue,
-         description="Useful for financial queries including reimbursements, salary problems, or payment delays."),
-    Tool(name="AdminAgent", func=handle_admin_issue,
-         description="Useful for administrative issues such as logistics, access requests, office supplies, or general support."),
-]
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'agents_config.json')
+tools = []
 
-os.environ["GOOGLE_API_KEY"] = "Your_API_Here"
+with open(CONFIG_PATH, 'r') as f:
+    agent_config = json.load(f)
 
+for agent in agent_config:
+    module_path = os.path.join(os.path.dirname(__file__), "agents", f"{agent['file']}.py")
+    spec = importlib.util.spec_from_file_location(agent["file"], module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    func = getattr(module, agent["function"])
+    tools.append(Tool(name=agent["name"], func=func, description=agent["description"]))
+
+os.environ["GOOGLE_API_KEY"] = "API_Key_Here"
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
 agent = initialize_agent(
     tools=tools,
     llm=llm,
-    agent="zero-shot-react-description",
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     verbose=True
 )
 
