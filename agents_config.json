@@ -28,5 +28,11 @@
         "description": "Useful for administrative issues such as logistics, access requests, office supplies, or general support.",
         "file": "admin_agent",
         "function": "handle_admin_issue"
+    },
+    {
+        "name": "TicketStatusChecker",
+        "file": "ticket_status_agent",
+        "function": "TicketStatusTool",
+        "description": "Checks the status of a ticket. Input should be like 'ticket_id=4, department=hr'"
     }
 ]
