@@ -5,13 +5,17 @@ from streamlit.components.v1 import html
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from main import agent, llm, classify_intent
+from utils.ticket_parser import extract_ticket_info_and_intent
+from utils.llm_instance import llm 
+from main import agent, classify_intent
 
+# Streamlit page setup
 st.set_page_config(
     page_title="Agentic AI Assistant",
     layout="centered"
 )
 
+# Custom CSS
 st.markdown("""
     <style>
         body {
@@ -40,31 +44,34 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Page title
 st.markdown("<h1 style='text-align: center;'>Agentic AI System</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: gray;'>Smart Query Handler</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
+# Chat memory
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Sidebar
 with st.sidebar:
     st.header("Controls")
     st.write("Manage your chat history or actions.")
-
     if st.button("Clear Chat"):
         st.session_state.messages = []
 
+# Display chat history
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        if msg["role"] == "user":
-            st.markdown(f": {msg['content']}", unsafe_allow_html=True)
-        else:
-            st.markdown(f": {msg['content']}", unsafe_allow_html=True)
+        st.markdown(msg["content"])
 
+# User input
 user_input = st.chat_input("Type your query...")
 
+# Process input
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
+
     with st.chat_message("user"):
         st.markdown(user_input)
 
@@ -75,12 +82,23 @@ if user_input:
                 st.markdown(f"🧠 Detected Intent: `{intent}`", unsafe_allow_html=True)
 
                 if intent == "ticket":
-                    response = agent.run(user_input)
+                    # Try to extract structured info
+                    structured_input = extract_ticket_info_and_intent(user_input)
+
+                    if structured_input != "missing":
+                        # Call TicketStatusAgent for check/close
+                        response = agent.run(f"ticket status checker input: {structured_input}")
+                    else:
+                        # General ticket handling (e.g., new issue)
+                        response = agent.run(user_input)
+
                 elif intent == "info":
                     ai_response = llm.invoke(user_input)
                     response = ai_response.content
+
                 else:
-                    response = "⚠️ Sorry, I couldn't understand your request. Try rephrasing it."
+                    response = "❓ I couldn't understand your intent. Please rephrase your question."
+
             except Exception as e:
                 response = f"❌ An error occurred: {e}"
 
