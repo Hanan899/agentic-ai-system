@@ -30,9 +30,15 @@
         "function": "handle_admin_issue"
     },
     {
-        "name": "TicketStatusChecker",
+        "name": "TicketStatusAgent",
         "file": "ticket_status_agent",
-        "function": "TicketStatusTool",
-        "description": "Checks the status of a ticket. Input should be like 'ticket_id=4, department=hr'"
+        "function": "check_ticket_status",
+        "description": "Check the status of a previously submitted ticket based on user query."
+    },
+    {
+        "name": "TicketStatusAgent",
+        "file": "ticket_status_agent",
+        "function": "handle_ticket_status",
+        "description": "Check or close the status of a ticket based on user query."
     }
 ]
