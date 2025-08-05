@@ -2,9 +2,11 @@ import os
 import json
 import importlib.util
 from langchain.agents import Tool, initialize_agent
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents.agent_types import AgentType
+from utils.llm_instance import llm
 from utils.db_utils import init_db
+from utils.ticket_parser import extract_ticket_info_and_intent
+
 
 init_db()
 
@@ -22,8 +24,6 @@ for agent in agent_config:
     func = getattr(module, agent["function"])
     tools.append(Tool(name=agent["name"], func=func, description=agent["description"]))
 
-os.environ["GOOGLE_API_KEY"] = "API_Key_Here"
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
 agent = initialize_agent(
     tools=tools,
@@ -34,17 +34,22 @@ agent = initialize_agent(
 
 def classify_intent(prompt: str) -> str:
     """
-    Classify the user intent from their prompt.
-    Categories: ticket, info
+    Classify the user intent into:
+    - "ticket": if the user is asking for support, status, or reporting an issue.
+    - "info": if the message is informational or general.
     """
     intent_prompt = f"""
     Classify the intent of the following user message into one of these categories:
-    - "ticket": if the user is reporting a problem or requesting support.
-    - "info": if the message doesn't fit any of the above.
+    - "ticket": if the user is reporting a problem, requesting support, or asking for ticket status.
+    - "info": if the message doesn't relate to tickets or support.
 
     User message: "{prompt}"
 
-    Just return the category label (ticket, info).
+    Only return one word: ticket or info.
     """
-    result = llm.invoke(intent_prompt).content.strip().lower()
-    return result
+    try:
+        result = llm.invoke(intent_prompt).content.strip().lower()
+        return result if result in ("ticket", "info") else "info"
+    except Exception as e:
+        print(f"[Intent Classification Error] {e}")
+        return "info"
