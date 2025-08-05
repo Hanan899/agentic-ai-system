@@ -1,22 +1,23 @@
 # Agentic AI System
 
-An intelligent agent-based system built with **LangChain**, **Agents**, **Google Gemini**, and **Streamlit**, powered by a modular architecture. This system detects user intent (e.g., ticket request vs. general info), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local **SQLite** database. It also handles general informational queries without logging tickets.
+An intelligent agent-based system built with **LangChain**, **Agents**, **Google Gemini**, and **Streamlit**, powered by a modular architecture.This system detects user intent (e.g., ticket status request, ticket closing, or raising new tickets), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local  **SQLite** database. It also handles general informational queries without logging tickets.
 
 ---
 
 ## Features
 
 
-- **Intent Classification**: Automatically determines whether the user is requesting information or raising a support ticket.
+- **Intent Classification**: Automatically determines whether the user is requesting information, checking ticket status, closing a ticket, or raising a new support ticket.
 - **Domain-Specific Agents**:
   - **ITAgent**: Software/hardware technical issues.
   - **FinanceAgent**: Salary, reimbursement, or payment-related queries.
   - **HRAgent**: HR issues like leave, complaints, and policies.
   - **InfraAgent**: Wi-Fi, power, or device-related infrastructure problems.
   - **AdminAgent**: General admin or logistics requests.
-- **SQLite Ticket Logging**: Only ticket-type prompts are stored in the local database.
+- **Ticket Status + Closing Support**: Users can check ticket statuses or explicitly close them *(e.g., "Please close ticket 3 from finance")*.
+- **SQLite Ticket Logging**: Only ticket-type prompts are stored in the local database, with Open or Closed status.
 - **Streamlit Frontend**: Simple UI for chat interaction and database checking.
-- **Google Gemini LLM**: Handles understanding and routing of queries using `gemini-2.0-flash`.
+- **Google Gemini LLM**:Handles user understanding, ticket intent classification, and dynamic prompting using gemini-2.0-flash.
 
 ---
 
@@ -26,7 +27,7 @@ An intelligent agent-based system built with **LangChain**, **Agents**, **Google
 |---------------|---------------------------|
 | LLM           | Google Gemini (`gemini-2.0-flash`) |
 | Framework     | LangChain Agents          |
-| Backend       | Python (FastAPI-style logic) |
+| Backend       | Python (LangChain logic) |
 | Frontend      | Streamlit                 |
 | Database      | SQLite (via `sqlite3`)    |
 
@@ -43,18 +44,23 @@ Agentic-AI-System/
 │   ├── finance_agent.py
 │   ├── hr_agent.py
 │   ├── infra_agent.py
-│   └── it_agent.py
+│   ├── it_agent.py
+│   └── ticket_status_agent.py
 │
 ├── db/
 │   └── system.db # SQLite database
 │
 ├── frontend/ # Streamlit-based interface
-│   ├── app.py # Main UI with intent classification
-│   └── check_db.py # View saved ticket records
+│   ├── app.py 
+│   └── check_db.py 
 │
 ├── utils/
-│   └── db_utils.py # DB connection, ticket saving/query logic
+│   ├── enhance_status.py
+│   ├── llm_instance.py
+│   ├── ticket_parser.py
+│   └── db_utils.py
 │
+├── agents_config.json
 ├── main.py # Entry point for LLM + routing logic
 └── requirements.txt
 
@@ -65,29 +71,36 @@ Agentic-AI-System/
 ## Architecture
 
 1. **User** enters a query (e.g., "My laptop is not working")
-2. **LLM** classifies the intent as either:
-   - `"ticket"` → routed to correct sub-agent
-   - `"info"` → answered using LLM knowledge
+2. **Intent Extraction** via Gemini + LangChain:
+   - `"info"` → answered using LLM knowledge (no ticket)
+   - `"ticket"` → new issue created
+   - `"status"` → fetch status from DB
+   - `"close"` → mark ticket as closed
 3. **Sub-agents** respond based on domain:
    - HR: leave, complaints
    - IT: hardware/software
    - Finance: salary, reimbursement
    - Admin: general tasks
    - Infra: power, WiFi, etc.
-4. **Ticket data** saved to local `system.db` with timestamp, status, etc.
-5. **Admins** view tickets from the Streamlit dashboard (`check_db.py`)
+4. **Ticket Details** extracted: `department`, `ticket_id`, `issue summary`
+5. **Agent Routing**: Based on department, ticket is passed to the respective agent
+6. **Ticket** is created, closed, or queried via SQLite
+7. **Streamlit Frontend** displays interaction and tracks updates
 
 ---
 
 ## Example Queries
 
-| Query                                 | Intent   | Routed To     | Ticket |
-|--------------------------------------|----------|----------------|--------|
-| "I want to apply for medical leave"  | ticket   | HR Agent       | ✅     |
-| "What is our holiday policy?"        | info     | —              | ❌     |
-| "Projector is not working in Room 2" | ticket   | Infra Agent    | ✅     |
-| "When is salary disbursed?"          | info     | —              | ❌     |
-| "Can't access my email"              | ticket   | IT Agent       | ✅     |
+| Query                                     | Intent | Routed To     | Ticket | Action       |
+| ----------------------------------------- | ------ | ------------- | ------ | ------------ |
+| "I want to apply for medical leave"       | ticket | HR Agent      | ✅      | Create       |
+| "What is our holiday policy?"             | info   | —             | ❌      | LLM Reply    |
+| "Projector is not working in Room 2"      | ticket | Infra Agent   | ✅      | Create       |
+| "When is salary disbursed?"               | info   | —             | ❌      | LLM Reply    |
+| "Can't access my email"                   | ticket | IT Agent      | ✅      | Create       |
+| "What is the status of ticket 2 from IT?" | status | IT Agent      | ❓      | Fetch Status |
+| "Please close ticket 3 from finance"      | close  | Finance Agent | ✅      | Close        |
+
 
 ---
 
@@ -140,11 +153,11 @@ streamlit run frontend/check_db.py
 
 ### Future Enhancements
 
- - Add more detailed sub-intents (e.g., HR → Leave, Complaint, Onboarding)
+ - Add more detailed sub-intents (`leave_balance`, `salary_issue`, `hardware_fix`)
 
  - Integrate email or Slack notifications for tickets
 
- - Add authentication layer
+ - Add user authentication (`basic login`)
 
  - Dashboard with filters and charts
 
