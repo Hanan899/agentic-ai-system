@@ -24,7 +24,6 @@ def check_ticket_status(query: str) -> str:
     department_map = {
         "it": ("it_tickets", "issue"),
         "infra": ("infra_tickets", "issue"),
-        "infrastructure": ("infra_tickets", "issue"),
         "hr": ("hr_tickets", "issue"),
         "finance": ("finance_tickets", "query"),
         "admin": ("admin_tickets", "issue"),
@@ -109,12 +108,25 @@ def close_ticket_status(query: str) -> str:
     conn.close()
     return f"✅ Ticket #{ticket_id} in {department.title()} department has been marked as Closed."
 
+def preprocess_user_query(query):
+    intent = "check" if "check" in query.lower() else "close" if "close" in query.lower() else None
+    ticket_id_match = re.search(r'ticket[^\d]*(\d+)', query, re.IGNORECASE)
+    ticket_id = int(ticket_id_match.group(1)) if ticket_id_match else None
+    department = None
+    for dept in ["infra", "it", "admin", "hr", "finance"]:
+        if dept in query.lower():
+            department = dept
+            break
+    return intent, ticket_id, department
+
 
 def handle_ticket_status(query: str) -> str:
     info = extract_ticket_info_and_intent(query)
-    
+
     if info == "missing" or not isinstance(info, dict):
-        return "❌ Could not understand the ticket details. Please include ticket ID and department."
+        info = preprocess_user_query(query)
+        if not info.get("ticket_id") or not info.get("department"):
+            return "❌ Could not understand the ticket details. Please include ticket ID and department."
 
     intent = info.get("intent")
     if not intent:
