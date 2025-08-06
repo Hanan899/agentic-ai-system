@@ -34,9 +34,9 @@ def extract_ticket_info_and_intent(prompt: str) -> dict:
                 "intent": parts.get("intent"),
             }
         else:
-            # Uniform fallback
             return {"ticket_id": None, "department": None, "intent": "missing"}
 
     except Exception as e:
         print(f"[Ticket Extraction Error] {e}")
         return {"ticket_id": None, "department": None, "intent": "missing"}
+
