@@ -85,11 +85,12 @@ if user_input:
                     # Try to extract structured info
                     structured_input = extract_ticket_info_and_intent(user_input)
 
-                    if structured_input != "missing":
-                        # Call TicketStatusAgent for check/close
+                    if structured_input["intent"] == "close":
+                        structured_input["status"] = "Closed"
+
+                    if structured_input["intent"] in ["check", "close"]:
                         response = agent.run(f"ticket status checker input: {structured_input}")
                     else:
-                        # General ticket handling (e.g., new issue)
                         response = agent.run(user_input)
 
                 elif intent == "info":
