@@ -4,7 +4,6 @@ from utils.enhance_status import enhance_ticket_status
 from utils.ticket_parser import extract_ticket_info_and_intent
 
 def check_ticket_status(query: str) -> str:
-    # Extract ticket number
     if "ticket_id=" in query and "department=" in query:
         try:
             parts = dict(item.strip().split("=") for item in query.split(","))
@@ -13,14 +12,12 @@ def check_ticket_status(query: str) -> str:
         except Exception:
             return "❌ Failed to parse structured ticket info."
     else:
-        # Fallback to legacy regex logic
         ticket_id_match = re.search(r'ticket\s*#?(\d+)', query, re.IGNORECASE)
         if not ticket_id_match:
             return "Please provide a ticket number like 'ticket #3'."
         ticket_id = int(ticket_id_match.group(1))
         department = None
 
-    # Try to find department from the query
     department_map = {
         "it": ("it_tickets", "issue"),
         "infra": ("infra_tickets", "issue"),
@@ -40,7 +37,6 @@ def check_ticket_status(query: str) -> str:
     conn = sqlite3.connect("db/system.db")
     cursor = conn.cursor()
 
-    # If department is identified, search only in that table
     if selected_table:
         table, column = selected_table
         cursor.execute(f"SELECT id, {column}, status FROM {table} WHERE id = ?", (ticket_id,))
@@ -51,7 +47,6 @@ def check_ticket_status(query: str) -> str:
         else:
             return f"No {keyword.upper()} ticket found with ID #{ticket_id}."
     else:
-        # Otherwise, search all tables
         for table, column in department_map.values():
             cursor.execute(f"SELECT id, {column}, status FROM {table} WHERE id = ?", (ticket_id,))
             row = cursor.fetchone()
@@ -89,7 +84,6 @@ def close_ticket_status(query: str) -> str:
     conn = sqlite3.connect("db/system.db")
     cursor = conn.cursor()
 
-    # Check current status
     cursor.execute(f"SELECT status FROM {table} WHERE id = ?", (ticket_id,))
     result = cursor.fetchone()
 
@@ -100,13 +94,12 @@ def close_ticket_status(query: str) -> str:
     current_status = result[0]
     if current_status.lower() == "closed":
         conn.close()
-        return f"✅ Ticket #{ticket_id} is already closed."
+        return f"Ticket #{ticket_id} is already closed."
 
-    # Update status to Closed
     cursor.execute(f"UPDATE {table} SET status = 'Closed' WHERE id = ?", (ticket_id,))
     conn.commit()
     conn.close()
-    return f"✅ Ticket #{ticket_id} in {department.title()} department has been marked as Closed."
+    return f"Ticket #{ticket_id} in {department.title()} department has been marked as Closed."
 
 def preprocess_user_query(query):
     intent = "check" if "check" in query.lower() else "close" if "close" in query.lower() else None
@@ -138,3 +131,4 @@ def handle_ticket_status(query: str) -> str:
         return close_ticket_status(query)
     else:
         return "❌ Unknown intent. Please specify if you want to 'check' or 'close' a ticket."
+
