@@ -1,6 +1,6 @@
 # Agentic AI System
 
-An intelligent agent-based system built with **LangChain**, **Agents**, **Google Gemini**, and **Streamlit**, powered by a modular architecture.This system detects user intent (e.g., ticket status request, ticket closing, or raising new tickets), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local  **SQLite** database. It also handles general informational queries without logging tickets.
+An intelligent agent-based system built with **LangChain**, **Agents**, **Groq Cloud**, and **Streamlit**, powered by a modular architecture.This system detects user intent (e.g., ticket status request, ticket closing, or raising new tickets), routes issues to appropriate domain-specific agents (HR, IT, Finance, Admin, Infra), and logs tickets into a local  **SQLite** database. It also handles general informational queries without logging tickets.
 
 ---
 
@@ -17,7 +17,7 @@ An intelligent agent-based system built with **LangChain**, **Agents**, **Google
 - **Ticket Status + Closing Support**: Users can check ticket statuses or explicitly close them *(e.g., "Please close ticket 3 from finance")*.
 - **SQLite Ticket Logging**: Only ticket-type prompts are stored in the local database, with Open or Closed status.
 - **Streamlit Frontend**: Simple UI for chat interaction and database checking.
-- **Google Gemini LLM**:Handles user understanding, ticket intent classification, and dynamic prompting using gemini-2.0-flash.
+- **Groq Cloud LLM**:Handles user understanding, ticket intent classification, and dynamic prompting using openai/gpt-oss-120b.
 
 ---
 
@@ -25,7 +25,7 @@ An intelligent agent-based system built with **LangChain**, **Agents**, **Google
 
 | Component     | Technology               |
 |---------------|---------------------------|
-| LLM           | Google Gemini (`gemini-2.0-flash`) |
+| LLM           | Groq Cloud (`openai/gpt-oss-120b`) |
 | Framework     | LangChain Agents          |
 | Backend       | Python (LangChain logic) |
 | Frontend      | Streamlit                 |
@@ -71,7 +71,7 @@ Agentic-AI-System/
 ## Architecture
 
 1. **User** enters a query (e.g., "My laptop is not working")
-2. **Intent Extraction** via Gemini + LangChain:
+2. **Intent Extraction** via Groq + LangChain:
    - `"info"` → answered using LLM knowledge (no ticket)
    - `"ticket"` → new issue created
    - `"status"` → fetch status from DB
@@ -121,10 +121,10 @@ source .venv/bin/activate     # For Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Set your Gemini API key (via .env or direct)
+### 3. Set your Groq Cloud API key (via .env or direct)
 
 ```bash
-export GOOGLE_API_KEY=your_api_key_here
+export GROQ_API_KEY=your_api_key_here
 ```
 
 ### 4. Run the main interface
@@ -143,7 +143,7 @@ streamlit run frontend/check_db.py
 
  - **langchain**
 
-- **google-generativeai (Gemini)**
+- **langchain-groq (Groq)**
 
 - **streamlit**
 
