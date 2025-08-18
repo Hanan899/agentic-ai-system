@@ -5,7 +5,8 @@ os.environ["GROQ_API_KEY"] = "API_KEY_HERE"
 
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    temperature=0.4
+    temperature=0
 )
+
 
 
